@@ -15,6 +15,7 @@ struct CaptureView: View {
 
             HStack {
                 TextField("tags (comma separated)", text: $viewModel.tagsText)
+                    .onSubmit { viewModel.appendTagFromInput() }
                 Button("Add") { viewModel.appendTagFromInput() }
             }
 
