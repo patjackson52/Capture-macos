@@ -4,6 +4,7 @@ import Foundation
 final class SettingsStore {
     private enum Keys {
         static let outputFolderBookmark = "outputFolderBookmark"
+        static let tagHistory = "tagHistory"
     }
 
     private let defaults = UserDefaults.standard
@@ -31,6 +32,18 @@ final class SettingsStore {
         if panel.runModal() == .OK, let url = panel.url {
             setOutputFolder(url)
         }
+    }
+
+    var tagHistory: [String] {
+        defaults.stringArray(forKey: Keys.tagHistory) ?? []
+    }
+
+    func recordTags(_ tags: [String]) {
+        var existing = tagHistory
+        for tag in tags where !existing.contains(tag) {
+            existing.append(tag)
+        }
+        defaults.set(existing, forKey: Keys.tagHistory)
     }
 
     private func setOutputFolder(_ url: URL) {

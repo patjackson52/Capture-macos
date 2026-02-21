@@ -21,6 +21,14 @@ final class CaptureViewModel: ObservableObject {
         self.settings = settings
     }
 
+    var suggestedTags: [String] {
+        settings.tagHistory.filter { !tags.contains($0) }
+    }
+
+    func addSuggestedTag(_ tag: String) {
+        tags = (tags + [tag]).normalizedTags()
+    }
+
     var canSave: Bool {
         !isSaving && (!text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !tags.isEmpty || !attachments.isEmpty)
     }
@@ -62,6 +70,7 @@ final class CaptureViewModel: ObservableObject {
         errorMessage = nil
         do {
             _ = try repository.save(draft: CaptureDraft(text: text, tags: tags, attachments: attachments, source: source), outputFolder: folder)
+            settings.recordTags(tags)
             isSaving = false
             onSaveSuccess?()
         } catch {

@@ -32,6 +32,21 @@ struct CaptureView: View {
                 }
             }
 
+            if !viewModel.suggestedTags.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        Text("Recent:").font(.caption).foregroundStyle(.secondary)
+                        ForEach(viewModel.suggestedTags, id: \.self) { tag in
+                            Button("#\(tag)") { viewModel.addSuggestedTag(tag) }
+                                .buttonStyle(.plain)
+                                .padding(.horizontal, 8).padding(.vertical, 3)
+                                .background(Capsule().strokeBorder(Color.secondary.opacity(0.3)))
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
+
             Text("Attachments: \(viewModel.attachments.count)")
             List {
                 ForEach(viewModel.attachments) { a in
