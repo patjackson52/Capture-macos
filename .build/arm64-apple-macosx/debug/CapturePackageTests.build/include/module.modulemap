@@ -1,0 +1,3 @@
+module CapturePackageTests {
+    header "/Users/patrick/workspace/Capture/.build/arm64-apple-macosx/debug/CapturePackageTests.build/include/CapturePackageTests-Swift.h"
+}
