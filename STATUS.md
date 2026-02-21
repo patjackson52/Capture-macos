@@ -1,0 +1,33 @@
+# Capture macOS — Live Status
+
+**Last updated (UTC):** 2026-02-21 20:45 UTC
+
+## App Factory Phases
+1. ✅ **Research & requirements** — Completed
+2. ✅ **Architecture & technical design** — Completed
+3. ✅ **MVP implementation** — Completed (coder phase baseline shipped)
+4. ✅ **Core integrations** — Completed (menu bar, shortcut, clipboard, services, settings)
+5. 🔄 **QA, polish, and release prep** — In progress (requires macOS runtime validation + Android fixture confirmation)
+
+## Current blockers / decisions needed
+- Validate and adjust serializer against **actual Android output corpus** (if any field/name/newline drift is found).
+- Perform macOS runtime validation on Patrick’s MacBook Pro node (shortcut registration, Services invocation, launch-at-login behavior).
+
+## Resolved decisions
+- Format parity target: Android actual output behavior (`DECISIONS.md`).
+- Distribution for v0.1.0: personal/developer use only (`DECISIONS.md`).
+
+## Next action
+- Run runtime validation on macOS node and reconcile any parity deltas from real Android fixtures.
+
+## Changelog
+- 2026-02-21 — Coder M1 complete: scaffolded native Swift/SwiftUI package + app shell + README stub.
+- 2026-02-21 — Coder M2 complete: models/repository/serializer, file + asset writing, collision handling.
+- 2026-02-21 — Coder M3 complete: capture UI (text/tags/attachments, drag/drop, save states/errors).
+- 2026-02-21 — Coder M4 complete: menu bar + global shortcut trigger + clipboard text/image ingest.
+- 2026-02-21 — Coder M5 complete: Services selected-text handoff integrated into capture draft.
+- 2026-02-21 — Coder M6 complete: settings (folder picker + bookmark persistence) + launch-at-login toggle.
+- 2026-02-21 — Coder M8 baseline complete: tests/fixtures for text-only, attachment-only, mixed parity contract.
+- 2026-02-21 — Milestone: Design completed. Golden-path audit confirmed required UX adjustments.
+- 2026-02-21 — Confirmed decisions: format parity with Android output and v0.1.0 distribution target.
+- 2026-02-21 — Milestone: Research completed; initialized live status tracker.
