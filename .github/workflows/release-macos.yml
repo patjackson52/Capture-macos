@@ -2,11 +2,6 @@ name: macOS Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Release version (optional; defaults to VERSION file or tag)"
-        required: false
-        type: string
   push:
     tags:
       - "v*"
@@ -23,72 +18,59 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve release version
+      - name: Resolve release version from VERSION file
         id: version
         shell: bash
         run: |
           set -euo pipefail
-          INPUT_VERSION="${{ github.event.inputs.version || '' }}"
-          TAG_VERSION="${GITHUB_REF_NAME:-}"
-
-          if [[ -n "$INPUT_VERSION" ]]; then
-            VERSION="$INPUT_VERSION"
-          elif [[ "${GITHUB_REF_TYPE:-}" == "tag" && -n "$TAG_VERSION" ]]; then
-            VERSION="${TAG_VERSION#v}"
-          elif [[ -f VERSION ]]; then
-            VERSION="$(tr -d '[:space:]' < VERSION)"
-          else
-            echo "Unable to resolve version: no manual input, no tag, no VERSION file."
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [[ -z "$VERSION" ]]; then
+            echo "VERSION file is empty"
             exit 1
           fi
 
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Resolved version: $VERSION"
-
-      - name: Validate signing and notarization secret placeholders
-        shell: bash
-        run: |
-          set -euo pipefail
-          missing=0
-
-          required=(
-            APPLE_TEAM_ID
-            APPLE_DEVELOPER_ID_APP_CERT_BASE64
-            APPLE_DEVELOPER_ID_APP_CERT_PASSWORD
-            APPLE_NOTARY_APPLE_ID
-            APPLE_NOTARY_TEAM_ID
-            APPLE_NOTARY_APP_PASSWORD
-          )
-
-          for key in "${required[@]}"; do
-            if [[ -z "${!key:-}" ]]; then
-              echo "::warning::Missing secret/env placeholder: $key"
-              missing=1
+          if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [[ "$TAG_VERSION" != "$VERSION" ]]; then
+              echo "Tag/version mismatch: tag=$TAG_VERSION VERSION=$VERSION"
+              exit 1
             fi
-          done
-
-          if [[ "$missing" -eq 1 ]]; then
-            echo "Signing/notarization secrets are not fully configured yet."
-            echo "This is expected for Phase 1 skeleton."
           fi
-        env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_DEVELOPER_ID_APP_CERT_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_BASE64 }}
-          APPLE_DEVELOPER_ID_APP_CERT_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_PASSWORD }}
-          APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
-          APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
-          APPLE_NOTARY_APP_PASSWORD: ${{ secrets.APPLE_NOTARY_APP_PASSWORD }}
 
-      - name: Build placeholder
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version from VERSION: $VERSION"
+
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Show toolchain versions
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p build
-          cat > build/README.txt <<'EOF'
-          Placeholder build output.
-          Replace this step with the real macOS app build/package process.
+          swift --version
+          xcodebuild -version
+
+      - name: Build release binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift build -c release --product CaptureApp
+
+      - name: Package release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/release
+          cp .build/release/CaptureApp build/release/
+          cat > build/release/RELEASE.txt <<EOF
+          version=${{ steps.version.outputs.version }}
+          ref=${GITHUB_REF_NAME}
+          sha=${GITHUB_SHA}
           EOF
-          tar -czf "build/capture-macos-${{ steps.version.outputs.version }}.tar.gz" -C build README.txt
+          cat build/release/RELEASE.txt
+          tar -czf "build/capture-macos-${{ steps.version.outputs.version }}.tar.gz" -C build/release CaptureApp RELEASE.txt
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
