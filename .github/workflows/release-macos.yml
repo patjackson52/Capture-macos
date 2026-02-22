@@ -1,0 +1,98 @@
+name: macOS Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (optional; defaults to VERSION file or tag)"
+        required: false
+        type: string
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build and package macOS app
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          INPUT_VERSION="${{ github.event.inputs.version || '' }}"
+          TAG_VERSION="${GITHUB_REF_NAME:-}"
+
+          if [[ -n "$INPUT_VERSION" ]]; then
+            VERSION="$INPUT_VERSION"
+          elif [[ "${GITHUB_REF_TYPE:-}" == "tag" && -n "$TAG_VERSION" ]]; then
+            VERSION="${TAG_VERSION#v}"
+          elif [[ -f VERSION ]]; then
+            VERSION="$(tr -d '[:space:]' < VERSION)"
+          else
+            echo "Unable to resolve version: no manual input, no tag, no VERSION file."
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Validate signing and notarization secret placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+
+          required=(
+            APPLE_TEAM_ID
+            APPLE_DEVELOPER_ID_APP_CERT_BASE64
+            APPLE_DEVELOPER_ID_APP_CERT_PASSWORD
+            APPLE_NOTARY_APPLE_ID
+            APPLE_NOTARY_TEAM_ID
+            APPLE_NOTARY_APP_PASSWORD
+          )
+
+          for key in "${required[@]}"; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::warning::Missing secret/env placeholder: $key"
+              missing=1
+            fi
+          done
+
+          if [[ "$missing" -eq 1 ]]; then
+            echo "Signing/notarization secrets are not fully configured yet."
+            echo "This is expected for Phase 1 skeleton."
+          fi
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_DEVELOPER_ID_APP_CERT_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_BASE64 }}
+          APPLE_DEVELOPER_ID_APP_CERT_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_PASSWORD }}
+          APPLE_NOTARY_APPLE_ID: ${{ secrets.APPLE_NOTARY_APPLE_ID }}
+          APPLE_NOTARY_TEAM_ID: ${{ secrets.APPLE_NOTARY_TEAM_ID }}
+          APPLE_NOTARY_APP_PASSWORD: ${{ secrets.APPLE_NOTARY_APP_PASSWORD }}
+
+      - name: Build placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          cat > build/README.txt <<'EOF'
+          Placeholder build output.
+          Replace this step with the real macOS app build/package process.
+          EOF
+          tar -czf "build/capture-macos-${{ steps.version.outputs.version }}.tar.gz" -C build README.txt
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-macos-${{ steps.version.outputs.version }}
+          path: build/capture-macos-${{ steps.version.outputs.version }}.tar.gz
+          if-no-files-found: error
