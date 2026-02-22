@@ -9,10 +9,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: macos-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Build and package macOS app
     runs-on: macos-latest
+    timeout-minutes: 45
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      artifact_name: ${{ steps.meta.outputs.artifact_name }}
 
     steps:
       - name: Checkout
@@ -40,6 +49,17 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved version from VERSION: $VERSION"
 
+      - name: Set artifact metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="capture-macos-release-${{ steps.version.outputs.version }}"
+          ARCHIVE_PATH="build/${ARTIFACT_NAME}.tar.gz"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "archive_path=${ARCHIVE_PATH}" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Select latest stable Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -64,17 +84,35 @@ jobs:
           set -euo pipefail
           mkdir -p build/release
           cp .build/release/CaptureApp build/release/
-          cat > build/release/RELEASE.txt <<EOF
+
+          cat > build/release/release-metadata.txt <<EOF
           version=${{ steps.version.outputs.version }}
+          artifact_name=${{ steps.meta.outputs.artifact_name }}
           ref=${GITHUB_REF_NAME}
           sha=${GITHUB_SHA}
+          run_id=${GITHUB_RUN_ID}
+          run_attempt=${GITHUB_RUN_ATTEMPT}
           EOF
-          cat build/release/RELEASE.txt
-          tar -czf "build/capture-macos-${{ steps.version.outputs.version }}.tar.gz" -C build/release CaptureApp RELEASE.txt
+
+          cat > build/release/release-metadata.json <<EOF
+          {
+            "version": "${{ steps.version.outputs.version }}",
+            "artifact_name": "${{ steps.meta.outputs.artifact_name }}",
+            "ref": "${GITHUB_REF_NAME}",
+            "sha": "${GITHUB_SHA}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}"
+          }
+          EOF
+
+          tar -czf "${{ steps.meta.outputs.archive_path }}" -C build/release CaptureApp release-metadata.txt release-metadata.json
+          ls -lah "${{ steps.meta.outputs.archive_path }}"
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: capture-macos-${{ steps.version.outputs.version }}
-          path: build/capture-macos-${{ steps.version.outputs.version }}.tar.gz
+          name: ${{ steps.meta.outputs.artifact_name }}
+          path: ${{ steps.meta.outputs.archive_path }}
           if-no-files-found: error
+          retention-days: 30
+          overwrite: true
