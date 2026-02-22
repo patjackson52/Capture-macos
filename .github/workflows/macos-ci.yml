@@ -31,4 +31,4 @@ jobs:
         run: swift build
 
       - name: Build test bundles (headless CI safeguard)
-        run: swift build --build-tests
+        run: swift test --no-run
