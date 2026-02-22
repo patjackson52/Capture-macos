@@ -1,0 +1,147 @@
+name: macOS Direct Distribution + Notarization (scaffold)
+
+on:
+  workflow_dispatch:
+    inputs:
+      notarize_enabled:
+        description: "Set true to perform notarization submission"
+        required: false
+        default: "false"
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-distribution-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  distribute:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release version from VERSION file
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [[ -z "$VERSION" ]]; then
+            echo "VERSION file is empty"
+            exit 1
+          fi
+
+          if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [[ "$TAG_VERSION" != "$VERSION" ]]; then
+              echo "Tag/version mismatch: tag=$TAG_VERSION VERSION=$VERSION"
+              exit 1
+            fi
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Fail fast on missing distribution secrets
+        shell: bash
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_DEVELOPER_ID_APP_CERT_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_BASE64 }}
+          APPLE_DEVELOPER_ID_APP_CERT_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_PASSWORD }}
+          APPLE_NOTARY_API_KEY_ID: ${{ secrets.APPLE_NOTARY_API_KEY_ID }}
+          APPLE_NOTARY_API_ISSUER_ID: ${{ secrets.APPLE_NOTARY_API_ISSUER_ID }}
+          APPLE_NOTARY_API_PRIVATE_KEY_BASE64: ${{ secrets.APPLE_NOTARY_API_PRIVATE_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in \
+            APPLE_TEAM_ID \
+            APPLE_DEVELOPER_ID_APP_CERT_BASE64 \
+            APPLE_DEVELOPER_ID_APP_CERT_PASSWORD \
+            APPLE_NOTARY_API_KEY_ID \
+            APPLE_NOTARY_API_ISSUER_ID \
+            APPLE_NOTARY_API_PRIVATE_KEY_BASE64; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Missing required secret: $key"
+              missing=1
+            fi
+          done
+
+          if [[ "$missing" -ne 0 ]]; then
+            echo "Configure repo/environment secrets before running this workflow."
+            exit 1
+          fi
+
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build release binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift build -c release --product CaptureApp
+
+      - name: Prepare signing and notarization placeholders
+        shell: bash
+        env:
+          APPLE_DEVELOPER_ID_APP_CERT_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_BASE64 }}
+          APPLE_DEVELOPER_ID_APP_CERT_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_APP_CERT_PASSWORD }}
+          APPLE_NOTARY_API_PRIVATE_KEY_BASE64: ${{ secrets.APPLE_NOTARY_API_PRIVATE_KEY_BASE64 }}
+          APPLE_NOTARY_API_KEY_ID: ${{ secrets.APPLE_NOTARY_API_KEY_ID }}
+        run: |
+          set -euo pipefail
+          CERT_P12="$RUNNER_TEMP/developer-id-app.p12"
+          API_KEY_P8="$RUNNER_TEMP/AuthKey_${APPLE_NOTARY_API_KEY_ID}.p8"
+
+          printf '%s' "$APPLE_DEVELOPER_ID_APP_CERT_BASE64" | base64 --decode > "$CERT_P12"
+          printf '%s' "$APPLE_NOTARY_API_PRIVATE_KEY_BASE64" | base64 --decode > "$API_KEY_P8"
+
+          security create-keychain -p temp-pass build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p temp-pass build.keychain
+          security import "$CERT_P12" -k build.keychain -P "$APPLE_DEVELOPER_ID_APP_CERT_PASSWORD" -T /usr/bin/codesign
+
+      - name: Package app artifact (unsigned/scaffold)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/release
+          cp .build/release/CaptureApp build/release/
+          ditto -c -k --sequesterRsrc --keepParent build/release/CaptureApp build/CaptureApp.zip
+          ls -lah build/CaptureApp.zip
+
+      - name: Notarization submission placeholder (optional)
+        if: ${{ github.event_name == 'push' || inputs.notarize_enabled == 'true' }}
+        shell: bash
+        env:
+          APPLE_NOTARY_API_KEY_ID: ${{ secrets.APPLE_NOTARY_API_KEY_ID }}
+          APPLE_NOTARY_API_ISSUER_ID: ${{ secrets.APPLE_NOTARY_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          echo "Submitting build/CaptureApp.zip for notarization (scaffold lane)."
+          xcrun notarytool submit build/CaptureApp.zip \
+            --key "$RUNNER_TEMP/AuthKey_${APPLE_NOTARY_API_KEY_ID}.p8" \
+            --key-id "$APPLE_NOTARY_API_KEY_ID" \
+            --issuer "$APPLE_NOTARY_API_ISSUER_ID" \
+            --wait
+
+      - name: Scaffold mode summary
+        if: ${{ github.event_name != 'push' && inputs.notarize_enabled != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "### macOS distribution scaffold mode"
+            echo "- Version: ${{ steps.version.outputs.version }}"
+            echo "- Artifact prepared: build/CaptureApp.zip"
+            echo "- Notarization step skipped (notarize_enabled=false)."
+            echo "- Set notarize_enabled=true to execute notarization submission."
+          } >> "$GITHUB_STEP_SUMMARY"

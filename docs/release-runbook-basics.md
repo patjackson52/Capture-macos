@@ -7,6 +7,8 @@ This is the minimum operator runbook for baseline macOS release packaging.
 - `VERSION` file contains intended release version (for example `0.1.0`)
 - For tag-triggered release, git tag must be `v<VERSION>` (for example `v0.1.0`)
 - Signing/notarization credentials are managed separately
+- Direct distribution + notarization scaffold/runbook is in `docs/distribution-prep-macos-direct-notarization.md`
+- Release approval/rollout/rollback controls are in `docs/release-governance-checklist.md`
 
 ## Triggering releases
 
