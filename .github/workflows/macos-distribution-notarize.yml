@@ -118,6 +118,15 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent build/release/CaptureApp build/CaptureApp.zip
           ls -lah build/CaptureApp.zip
 
+      - name: Upload distribution artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-macos-direct-distribution-${{ steps.version.outputs.version }}
+          path: build/CaptureApp.zip
+          if-no-files-found: error
+          retention-days: 14
+          overwrite: true
+
       - name: Notarization submission placeholder (optional)
         if: ${{ github.event_name == 'push' || inputs.notarize_enabled == 'true' }}
         shell: bash
@@ -142,6 +151,26 @@ jobs:
             echo "### macOS distribution scaffold mode"
             echo "- Version: ${{ steps.version.outputs.version }}"
             echo "- Artifact prepared: build/CaptureApp.zip"
+            echo "- Uploaded artifact: capture-macos-direct-distribution-${{ steps.version.outputs.version }}"
             echo "- Notarization step skipped (notarize_enabled=false)."
             echo "- Set notarize_enabled=true to execute notarization submission."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Distribution summary
+        if: ${{ github.event_name == 'push' || inputs.notarize_enabled == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "### macOS distribution notarization mode"
+            echo "- Version: ${{ steps.version.outputs.version }}"
+            echo "- Uploaded artifact: capture-macos-direct-distribution-${{ steps.version.outputs.version }}"
+            echo "- Notarization submission executed via notarytool."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Cleanup temporary keychain
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          security delete-keychain build.keychain || true

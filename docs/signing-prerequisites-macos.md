@@ -34,20 +34,18 @@ Choose one method (API key recommended for automation):
 
 ## 4) CI secret mapping placeholders (GitHub Actions)
 
-Map the following repository/org secrets:
+Current workflow (`.github/workflows/macos-distribution-notarize.yml`) is wired for **API key flow**.
+
+Required repository/org secrets:
 
 - `APPLE_TEAM_ID`
 - `APPLE_DEVELOPER_ID_APP_CERT_BASE64` (base64-encoded `.p12`)
 - `APPLE_DEVELOPER_ID_APP_CERT_PASSWORD`
-- `APPLE_NOTARY_APPLE_ID` (if using Apple ID flow)
-- `APPLE_NOTARY_TEAM_ID`
-- `APPLE_NOTARY_APP_PASSWORD` (if using Apple ID flow)
-
-If using API key flow, add placeholders as needed:
-
 - `APPLE_NOTARY_API_KEY_ID`
 - `APPLE_NOTARY_API_ISSUER_ID`
 - `APPLE_NOTARY_API_PRIVATE_KEY_BASE64` (base64-encoded `.p8`)
+
+If you later switch to Apple ID flow, update both workflow and this checklist together to avoid drift.
 
 ## 5) Local validation before CI rollout
 

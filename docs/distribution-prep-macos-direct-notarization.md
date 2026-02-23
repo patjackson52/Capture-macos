@@ -37,7 +37,8 @@ In scaffold mode, the workflow:
 2. builds release binary
 3. materializes keychain/certificate and notary key placeholders
 4. packages `build/CaptureApp.zip`
-5. skips notarization submission
+5. uploads artifact `capture-macos-direct-distribution-<VERSION>`
+6. skips notarization submission
 
 ## Enabling notarization
 

@@ -1,6 +1,6 @@
 # Capture macOS — Live Status
 
-**Last updated (UTC):** 2026-02-21 20:45 UTC
+**Last updated (UTC):** 2026-02-23 04:24 UTC
 
 ## App Factory Phases
 1. ✅ **Research & requirements** — Completed
@@ -18,6 +18,7 @@
 - Distribution for v0.1.0: personal/developer use only (`DECISIONS.md`).
 
 ## Next action
+- Execute first end-to-end notarized distribution cycle from tag (`v<VERSION>`) and validate Gatekeeper on a clean host.
 - Run runtime validation on macOS node and reconcile any parity deltas from real Android fixtures.
 
 ## Changelog
@@ -30,4 +31,6 @@
 - 2026-02-21 — Coder M8 baseline complete: tests/fixtures for text-only, attachment-only, mixed parity contract.
 - 2026-02-21 — Milestone: Design completed. Golden-path audit confirmed required UX adjustments.
 - 2026-02-21 — Confirmed decisions: format parity with Android output and v0.1.0 distribution target.
+- 2026-02-23 — Release prep hardening: distribution workflow now uploads versioned zip artifact, writes clearer summaries, and cleans temporary keychain.
+- 2026-02-23 — Docs refreshed for first notarized cycle readiness and Sparkle/auto-update preparation checklist.
 - 2026-02-21 — Milestone: Research completed; initialized live status tracker.
