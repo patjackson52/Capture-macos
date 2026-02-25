@@ -42,3 +42,10 @@ Behavior:
 - Capture session execution + screenshot selection
 - Press kit ZIP composition and review
 - Listing copy/localization polish
+
+## Localization + release evidence
+
+- Templates: `assets/localization/`
+- Validation: `scripts/check-localization-readiness.py`
+- RC checklist generator: `scripts/generate-rc-asset-checklist.py`
+- Flow guide: `docs/release-assets-localization.md`

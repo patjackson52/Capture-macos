@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "app-store-listing",
+  "defaultLocale": "en-US",
+  "locales": {
+    "en-US": {
+      "appName": "Capture",
+      "subtitle": "Record polished product demos on macOS",
+      "promoText": "Fast screen capture, simple sharing, and clear team feedback loops.",
+      "description": "TODO: Add App Store long description for en-US.",
+      "keywords": [
+        "screen recorder",
+        "demo",
+        "productivity",
+        "macOS"
+      ],
+      "releaseNotes": "TODO: Add release notes for this cycle (en-US)."
+    },
+    "es-ES": {
+      "appName": "Capture",
+      "subtitle": "TODO: Subtítulo en español",
+      "promoText": "TODO: Texto promocional en español",
+      "description": "TODO: Descripción larga en español.",
+      "keywords": [
+        "TODO"
+      ],
+      "releaseNotes": "TODO: Notas de la versión en español."
+    }
+  }
+}

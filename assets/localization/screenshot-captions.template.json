@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "defaultLocale": "en-US",
+  "locales": {
+    "en-US": {
+      "app-store-listing": {
+        "screenshot-13in-01": "Capture key product moments without switching tools.",
+        "screenshot-13in-02": "Annotate and share walkthroughs your team can act on.",
+        "screenshot-16in-01": "Optional large-format screenshot caption."
+      },
+      "direct-distribution-listing": {
+        "direct-hero-screenshot-01": "Tell the product story in one polished hero frame."
+      }
+    },
+    "es-ES": {
+      "app-store-listing": {
+        "screenshot-13in-01": "TODO: Texto de captura 1",
+        "screenshot-13in-02": "TODO: Texto de captura 2",
+        "screenshot-16in-01": "TODO: Texto opcional de captura 3"
+      },
+      "direct-distribution-listing": {
+        "direct-hero-screenshot-01": "TODO: Texto para hero"
+      }
+    }
+  }
+}

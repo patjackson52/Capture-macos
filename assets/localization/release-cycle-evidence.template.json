@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "cycleId": "YYYYMMDDTHHMMSSZ",
+  "version": "0.0.0-rc1",
+  "lanes": {
+    "app-store": {
+      "requiredEvidence": {
+        "appstore-metadata-export": {
+          "path": "handoff/evidence/app-store-connect-metadata.md",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "Export generated from App Store Connect metadata form."
+        },
+        "appstore-review-notes": {
+          "path": "handoff/evidence/review-notes.md",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "Reviewer notes and special submission context."
+        }
+      }
+    },
+    "direct-notarized": {
+      "requiredEvidence": {
+        "signed-notarized-zip": {
+          "path": "handoff/artifacts/CaptureApp.zip",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "Notarized app archive ready for publication."
+        },
+        "checksums": {
+          "path": "handoff/artifacts/checksums.txt",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "SHA-256 checksums for shipped artifacts."
+        },
+        "release-metadata": {
+          "path": "handoff/artifacts/release-metadata.json",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "Version/build metadata and publication notes."
+        },
+        "notarization-log": {
+          "path": "handoff/evidence/notarization-log.txt",
+          "ownerRole": "release",
+          "status": "pending",
+          "notes": "Raw notarytool output or exported log."
+        },
+        "gatekeeper-assessment": {
+          "path": "handoff/evidence/gatekeeper-assessment.txt",
+          "ownerRole": "qa",
+          "status": "pending",
+          "notes": "spctl verification from clean host."
+        }
+      }
+    }
+  }
+}

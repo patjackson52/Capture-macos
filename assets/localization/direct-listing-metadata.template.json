@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "direct-distribution-listing",
+  "defaultLocale": "en-US",
+  "locales": {
+    "en-US": {
+      "headline": "Capture for macOS",
+      "subheadline": "Ship clear updates with fewer back-and-forths",
+      "shortDescription": "Record and share polished product walkthroughs in minutes.",
+      "longDescription": "TODO: Add direct listing long-form copy for en-US.",
+      "ctaPrimary": "Download for macOS",
+      "ctaSecondary": "View release notes"
+    },
+    "es-ES": {
+      "headline": "TODO: Título principal",
+      "subheadline": "TODO: Subtítulo",
+      "shortDescription": "TODO: Descripción corta",
+      "longDescription": "TODO: Descripción larga",
+      "ctaPrimary": "TODO: CTA principal",
+      "ctaSecondary": "TODO: CTA secundaria"
+    }
+  }
+}

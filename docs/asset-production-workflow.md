@@ -47,7 +47,27 @@ The script creates:
 
 `CHECKLIST.md` is generated from the direct-notarized lane in `assets/required-asset-matrix.json`.
 
-## 4) Fill and verify release evidence
+## 4) Prepare localization metadata + captions
+
+Fill locale templates:
+- `assets/localization/app-store-metadata.template.json`
+- `assets/localization/direct-listing-metadata.template.json`
+- `assets/localization/screenshot-captions.template.json`
+- `assets/localization/release-cycle-evidence.template.json`
+
+Validate locale completeness and evidence requirements:
+
+```bash
+scripts/check-localization-readiness.py
+```
+
+Generate RC checklist markdown from the matrix/manifest:
+
+```bash
+scripts/generate-rc-asset-checklist.py --version 0.1.0 --cycle-id 20260225T020000Z
+```
+
+## 5) Fill and verify release evidence
 
 Release owner populates package contents after signing/notarization:
 - `artifacts/CaptureApp.zip`
