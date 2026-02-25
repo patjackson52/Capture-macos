@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "platform": "macos",
+  "lanes": [
+    {
+      "id": "app-store",
+      "name": "App Store distribution",
+      "description": "Assets and evidence required to submit a macOS build through App Store Connect.",
+      "requiredAssets": [
+        {
+          "assetId": "app-store-icon-1024",
+          "manifestChannel": "app-store-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        },
+        {
+          "assetId": "screenshot-13in-01",
+          "manifestChannel": "app-store-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        },
+        {
+          "assetId": "screenshot-13in-02",
+          "manifestChannel": "app-store-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        }
+      ],
+      "requiredEvidence": [
+        {
+          "id": "appstore-metadata-export",
+          "path": "handoff/evidence/app-store-connect-metadata.md",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        },
+        {
+          "id": "appstore-review-notes",
+          "path": "handoff/evidence/review-notes.md",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        }
+      ]
+    },
+    {
+      "id": "direct-notarized",
+      "name": "Direct distribution + notarization",
+      "description": "Assets and release evidence for signed, notarized direct distribution.",
+      "requiredAssets": [
+        {
+          "assetId": "direct-download-icon-512",
+          "manifestChannel": "direct-distribution-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        },
+        {
+          "assetId": "direct-hero-screenshot-01",
+          "manifestChannel": "direct-distribution-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        },
+        {
+          "assetId": "direct-og-image-1200x630",
+          "manifestChannel": "direct-distribution-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "design"
+        },
+        {
+          "assetId": "direct-press-kit-zip",
+          "manifestChannel": "direct-distribution-listing",
+          "handoffPhase": "asset-production",
+          "ownerRole": "marketing"
+        }
+      ],
+      "requiredEvidence": [
+        {
+          "id": "signed-notarized-zip",
+          "path": "handoff/artifacts/CaptureApp.zip",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        },
+        {
+          "id": "checksums",
+          "path": "handoff/artifacts/checksums.txt",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        },
+        {
+          "id": "release-metadata",
+          "path": "handoff/artifacts/release-metadata.json",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        },
+        {
+          "id": "notarization-log",
+          "path": "handoff/evidence/notarization-log.txt",
+          "phase": "release-handoff",
+          "ownerRole": "release"
+        },
+        {
+          "id": "gatekeeper-assessment",
+          "path": "handoff/evidence/gatekeeper-assessment.txt",
+          "phase": "release-handoff",
+          "ownerRole": "qa"
+        }
+      ]
+    }
+  ]
+}

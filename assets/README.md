@@ -9,6 +9,7 @@ This directory tracks listing and launch assets for both App Store and direct di
 - `exports/direct-distribution/` — website/OG/press-kit assets for direct channel
 - `manifest.json` — required/recommended assets, formats, dimensions, and channels
 - `manifest.schema.json` — schema contract for manifest structure
+- `required-asset-matrix.json` — machine-readable lane matrix for required assets/evidence and role ownership
 
 ## Validation
 

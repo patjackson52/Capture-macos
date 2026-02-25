@@ -20,6 +20,7 @@ This checklist tracks visual asset readiness for App Store and direct distributi
 
 - Manifest: `assets/manifest.json`
 - Manifest schema: `assets/manifest.schema.json`
+- Lane requirement matrix: `assets/required-asset-matrix.json`
 - Source design files: `assets/source/app-store/`
 - Export files: `assets/exports/app-store/`, `assets/exports/direct-distribution/`
 - Validation script: `scripts/check-assets-manifest.py`

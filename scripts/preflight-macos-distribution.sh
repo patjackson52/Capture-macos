@@ -40,6 +40,23 @@ fi
 
 scripts/check-assets-manifest.py
 
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+matrix_path = Path("assets/required-asset-matrix.json")
+if not matrix_path.is_file():
+    raise SystemExit("[error] Missing assets/required-asset-matrix.json")
+
+data = json.loads(matrix_path.read_text(encoding="utf-8"))
+required_lanes = {"app-store", "direct-notarized"}
+lanes = {lane.get("id") for lane in data.get("lanes", []) if isinstance(lane, dict)}
+missing = sorted(required_lanes - lanes)
+if missing:
+    raise SystemExit(f"[error] required-asset-matrix missing lanes: {', '.join(missing)}")
+print("[ok] required-asset-matrix includes app-store and direct-notarized lanes")
+PY
+
 required_placeholders=(
   assets/exports/direct-distribution/icons/direct-download-icon-512.placeholder.md
   assets/exports/direct-distribution/screenshots/direct-hero-01-1920x1080.placeholder.md

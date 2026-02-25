@@ -16,11 +16,11 @@ fi
 echo "[check] Verifying notarized distribution asset package: $PACKAGE_DIR"
 
 required_files=(
-  "CaptureApp.zip"
-  "checksums.txt"
-  "release-metadata.json"
-  "notarization-log.txt"
-  "gatekeeper-assessment.txt"
+  "artifacts/CaptureApp.zip"
+  "artifacts/checksums.txt"
+  "artifacts/release-metadata.json"
+  "evidence/notarization-log.txt"
+  "evidence/gatekeeper-assessment.txt"
   "assets/press-kit/capture-press-kit.zip"
   "assets/og/capture-og-1200x630.png"
   "assets/screenshots/direct-hero-01-1920x1080.png"
@@ -35,11 +35,11 @@ for rel in "${required_files[@]}"; do
   echo "[ok] $rel"
 done
 
-if ! grep -q "CaptureApp.zip" "$PACKAGE_DIR/checksums.txt"; then
-  echo "[error] checksums.txt is missing CaptureApp.zip entry"
+if ! grep -q "CaptureApp.zip" "$PACKAGE_DIR/artifacts/checksums.txt"; then
+  echo "[error] artifacts/checksums.txt is missing CaptureApp.zip entry"
   exit 1
 fi
 
-echo "[ok] checksums.txt contains CaptureApp.zip"
+echo "[ok] artifacts/checksums.txt contains CaptureApp.zip"
 
 echo "[check] Package verification passed"

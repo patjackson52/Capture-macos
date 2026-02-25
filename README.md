@@ -69,6 +69,7 @@ swift run CaptureApp
 - Signing prerequisites checklist: `docs/signing-prerequisites-macos.md`
 - Auto-update prep checklist (Sparkle-ready): `docs/auto-update-prep-macos.md`
 - Governance and rollback controls: `docs/release-governance-checklist.md`
+- Asset production + handoff workflow: `docs/asset-production-workflow.md`
 
 ## Notes
 

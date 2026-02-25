@@ -5,16 +5,19 @@ Use this guide to produce and validate the first direct-distribution package aft
 ## Package target layout
 
 ```text
-out/notarized-package/
-  CaptureApp.zip
-  checksums.txt
-  release-metadata.json
-  notarization-log.txt
-  gatekeeper-assessment.txt
+out/handoffs/notarization-<version>-<cycle-id>/
+  artifacts/
+    CaptureApp.zip
+    checksums.txt
+    release-metadata.json
+  evidence/
+    notarization-log.txt
+    gatekeeper-assessment.txt
   assets/
     og/capture-og-1200x630.png
     screenshots/direct-hero-01-1920x1080.png
     press-kit/capture-press-kit.zip
+  CHECKLIST.md
 ```
 
 ## 1) Preflight
@@ -31,7 +34,18 @@ Checks include:
 - asset manifest integrity + placeholder scaffolding
 - direct-distribution listing placeholder coverage
 
-## 2) Materialize package payload
+## 2) Generate package skeleton
+
+```bash
+scripts/generate-notarization-handoff.sh
+```
+
+This creates a cycle-specific handoff directory under `out/handoffs/` with:
+- `artifacts/`
+- `evidence/`
+- `CHECKLIST.md` (generated from `assets/required-asset-matrix.json` direct lane)
+
+## 3) Materialize package payload
 
 Expected data sources:
 - `CaptureApp.zip`: signed + notarized app archive
@@ -39,22 +53,22 @@ Expected data sources:
 - `gatekeeper-assessment.txt`: clean-host `spctl`/launch verification output
 - direct distribution assets from `assets/exports/direct-distribution/`
 
-Generate checksums:
+Generate checksums (inside your generated handoff folder):
 
 ```bash
-cd out/notarized-package
+cd out/handoffs/notarization-<version>-<cycle-id>/artifacts
 shasum -a 256 CaptureApp.zip > checksums.txt
 ```
 
-## 3) Validate package shape
+## 4) Validate package shape
 
 ```bash
-scripts/check-notarized-asset-package.sh out/notarized-package
+scripts/check-notarized-asset-package.sh out/handoffs/notarization-<version>-<cycle-id>
 ```
 
 This verifies required files and checksum coverage for `CaptureApp.zip`.
 
-## 4) Capture rollout evidence
+## 5) Capture rollout evidence
 
 Record release evidence using:
 

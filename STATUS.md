@@ -1,6 +1,6 @@
 # Capture macOS — Live Status
 
-**Last updated (UTC):** 2026-02-23 04:24 UTC
+**Last updated (UTC):** 2026-02-25 02:16 UTC
 
 ## App Factory Phases
 1. ✅ **Research & requirements** — Completed
@@ -32,5 +32,6 @@
 - 2026-02-21 — Milestone: Design completed. Golden-path audit confirmed required UX adjustments.
 - 2026-02-21 — Confirmed decisions: format parity with Android output and v0.1.0 distribution target.
 - 2026-02-23 — Release prep hardening: distribution workflow now uploads versioned zip artifact, writes clearer summaries, and cleans temporary keychain.
+- 2026-02-25 — Added machine-readable lane requirement matrix, handoff skeleton generator script, and asset production workflow/responsibility docs.
 - 2026-02-23 — Docs refreshed for first notarized cycle readiness and Sparkle/auto-update preparation checklist.
 - 2026-02-21 — Milestone: Research completed; initialized live status tracker.
