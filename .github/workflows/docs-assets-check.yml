@@ -1,0 +1,34 @@
+name: Docs and Assets Check
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'scripts/check-assets-manifest.py'
+      - 'assets/**'
+      - '.github/workflows/docs-assets-check.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'docs/**'
+      - 'scripts/check-assets-manifest.py'
+      - 'assets/**'
+      - '.github/workflows/docs-assets-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  docs-assets-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate asset manifest scaffolding
+        run: scripts/check-assets-manifest.py
+
+      - name: Verify required docs exist
+        run: |
+          test -f docs/required-checks.md
+          test -f docs/store-assets-readiness.md

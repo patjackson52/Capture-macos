@@ -12,6 +12,10 @@ Depending on GitHub UI/API context formatting, this may appear as:
 
 - `macOS CI / build-and-test`
 
+Recommended additional check for release-readiness/docs PRs:
+
+- `Docs and Assets Check / docs-assets-check`
+
 ## Branch protection settings (recommended)
 
 In addition to required checks, enable:
@@ -30,7 +34,8 @@ In addition to required checks, enable:
 3. Under **Branch protection rules**, edit/add rule for `main`
 4. Enable **Require status checks to pass before merging**
 5. Add required check: `build-and-test`
-6. Save changes
+6. Add recommended check: `docs-assets-check`
+7. Save changes
 
 ## API/CLI note
 

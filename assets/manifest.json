@@ -1,0 +1,45 @@
+{
+  "platform": "macos-app-store",
+  "assets": [
+    {
+      "id": "app-store-icon-1024",
+      "export": "assets/exports/app-store/icons/app-store-icon-1024.png",
+      "placeholder": "assets/exports/app-store/icons/app-store-icon-1024.placeholder.md",
+      "format": "png",
+      "width": 1024,
+      "height": 1024,
+      "required": true,
+      "notes": "App Store Connect app icon"
+    },
+    {
+      "id": "screenshot-13in-01",
+      "export": "assets/exports/app-store/screenshots/mac-13/mac-13-01-1280x800.png",
+      "placeholder": "assets/exports/app-store/screenshots/mac-13/mac-13-01-1280x800.placeholder.md",
+      "format": "png",
+      "width": 1280,
+      "height": 800,
+      "required": true,
+      "notes": "13-inch class screenshot"
+    },
+    {
+      "id": "screenshot-13in-02",
+      "export": "assets/exports/app-store/screenshots/mac-13/mac-13-02-1280x800.png",
+      "placeholder": "assets/exports/app-store/screenshots/mac-13/mac-13-02-1280x800.placeholder.md",
+      "format": "png",
+      "width": 1280,
+      "height": 800,
+      "required": true,
+      "notes": "13-inch class screenshot"
+    },
+    {
+      "id": "screenshot-16in-01",
+      "export": "assets/exports/app-store/screenshots/mac-16/mac-16-01-1536x960.png",
+      "placeholder": "assets/exports/app-store/screenshots/mac-16/mac-16-01-1536x960.placeholder.md",
+      "format": "png",
+      "width": 1536,
+      "height": 960,
+      "required": false,
+      "notes": "Optional larger display variant"
+    }
+  ]
+}
