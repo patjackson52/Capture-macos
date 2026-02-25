@@ -1,12 +1,14 @@
-# Assets scaffolding (macOS / App Store)
+# Assets scaffolding (macOS distribution)
 
-This directory tracks App Store-ready visual assets and placeholders.
+This directory tracks listing and launch assets for both App Store and direct distribution.
 
 ## Layout
 
 - `source/app-store/` — editable source files from design tools
-- `exports/app-store/` — final files intended for submission
-- `manifest.json` — required/recommended assets, formats, and dimensions
+- `exports/app-store/` — final files intended for App Store submission
+- `exports/direct-distribution/` — website/OG/press-kit assets for direct channel
+- `manifest.json` — required/recommended assets, formats, dimensions, and channels
+- `manifest.schema.json` — schema contract for manifest structure
 
 ## Validation
 
@@ -16,4 +18,4 @@ Run:
 scripts/check-assets-manifest.py
 ```
 
-The checker enforces placeholder existence and validates real image dimensions when exports are present.
+The checker validates manifest shape, enforces placeholder existence, and validates image dimensions when exports are present.

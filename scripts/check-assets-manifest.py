@@ -6,6 +6,11 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MANIFEST = os.path.join(ROOT, "assets", "manifest.json")
+SCHEMA = os.path.join(ROOT, "assets", "manifest.schema.json")
+
+ALLOWED_CATEGORIES = {"icon", "screenshot", "open-graph", "press-kit"}
+ALLOWED_FILE_TYPES = {"image", "archive", "document"}
+IMAGE_FORMATS = {"png", "jpg", "jpeg"}
 
 
 def png_size(path: str):
@@ -46,57 +51,171 @@ def image_size(path: str, fmt: str):
         return png_size(path)
     if fmt in ("jpg", "jpeg"):
         return jpeg_size(path)
-    raise ValueError(f"unsupported format for dimension check: {fmt}")
+    raise ValueError(f"unsupported image format for dimension check: {fmt}")
 
 
 def fail(msg: str):
     print(f"::error::{msg}")
 
 
-if not os.path.isfile(MANIFEST):
-    fail(f"Missing manifest: {os.path.relpath(MANIFEST, ROOT)}")
-    sys.exit(1)
+def warn(msg: str):
+    print(f"::warning::{msg}")
 
-with open(MANIFEST, "r", encoding="utf-8") as f:
-    data = json.load(f)
 
-failures = 0
-for item in data.get("assets", []):
-    asset_id = item.get("id", "<unknown>")
-    export_rel = item.get("export")
-    placeholder_rel = item.get("placeholder")
-    required = bool(item.get("required", True))
+def load_json(path: str, label: str):
+    if not os.path.isfile(path):
+        fail(f"Missing {label}: {os.path.relpath(path, ROOT)}")
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    if not export_rel or not placeholder_rel:
-        fail(f"{asset_id}: manifest entry missing export/placeholder")
+
+def validate_manifest_shape(data: dict):
+    failures = 0
+
+    if not isinstance(data, dict):
+        fail("manifest root must be an object")
+        return 1
+
+    for key in ("schemaVersion", "platform", "channels"):
+        if key not in data:
+            fail(f"manifest missing required key: {key}")
+            failures += 1
+
+    if data.get("platform") != "macos":
+        fail("manifest platform must be 'macos'")
         failures += 1
-        continue
 
-    export_path = os.path.join(ROOT, export_rel)
-    placeholder_path = os.path.join(ROOT, placeholder_rel)
+    channels = data.get("channels")
+    if not isinstance(channels, list) or not channels:
+        fail("manifest channels must be a non-empty list")
+        return failures + 1
 
-    if not os.path.isfile(placeholder_path):
-        fail(f"{asset_id}: missing placeholder {placeholder_rel}")
-        failures += 1
+    asset_ids = set()
+    for channel in channels:
+        if not isinstance(channel, dict):
+            fail("channel entry must be an object")
+            failures += 1
+            continue
 
-    if os.path.isfile(export_path):
-        fmt = item.get("format", "").lower()
-        w_req = item.get("width")
-        h_req = item.get("height")
-        if fmt and w_req and h_req:
-            try:
-                w_act, h_act = image_size(export_path, fmt)
-                if (w_act, h_act) != (w_req, h_req):
-                    fail(f"{asset_id}: wrong dimensions for {export_rel} (got {w_act}x{h_act}, expected {w_req}x{h_req})")
-                    failures += 1
-            except Exception as e:
-                fail(f"{asset_id}: unable to validate {export_rel}: {e}")
+        channel_name = channel.get("name", "<unknown-channel>")
+        assets = channel.get("assets")
+        if not channel_name:
+            fail("channel missing name")
+            failures += 1
+        if not isinstance(assets, list) or not assets:
+            fail(f"channel '{channel_name}' must include a non-empty assets list")
+            failures += 1
+            continue
+
+        for item in assets:
+            if not isinstance(item, dict):
+                fail(f"{channel_name}: asset entry must be an object")
                 failures += 1
-    elif required:
-        print(f"::warning::{asset_id}: export not present yet ({export_rel}); placeholder is present")
+                continue
 
-if failures:
-    print(f"Asset manifest check failed ({failures} issue(s)).")
-    sys.exit(1)
+            asset_id = item.get("id", "<unknown>")
+            if asset_id in asset_ids:
+                fail(f"duplicate asset id: {asset_id}")
+                failures += 1
+            asset_ids.add(asset_id)
 
-print("Asset manifest check passed.")
+            for key in ("id", "category", "fileType", "export", "placeholder", "format", "required"):
+                if key not in item:
+                    fail(f"{channel_name}/{asset_id}: missing required field '{key}'")
+                    failures += 1
+
+            category = item.get("category")
+            if category not in ALLOWED_CATEGORIES:
+                fail(f"{channel_name}/{asset_id}: invalid category '{category}'")
+                failures += 1
+
+            file_type = item.get("fileType")
+            if file_type not in ALLOWED_FILE_TYPES:
+                fail(f"{channel_name}/{asset_id}: invalid fileType '{file_type}'")
+                failures += 1
+
+            fmt = str(item.get("format", "")).lower()
+            if file_type == "image":
+                if fmt not in IMAGE_FORMATS:
+                    fail(f"{channel_name}/{asset_id}: image format must be png/jpg/jpeg")
+                    failures += 1
+                if not isinstance(item.get("width"), int) or not isinstance(item.get("height"), int):
+                    fail(f"{channel_name}/{asset_id}: image assets require integer width/height")
+                    failures += 1
+            elif file_type == "archive" and fmt != "zip":
+                fail(f"{channel_name}/{asset_id}: archive assets must use format=zip")
+                failures += 1
+            elif file_type == "document" and fmt != "pdf":
+                fail(f"{channel_name}/{asset_id}: document assets must use format=pdf")
+                failures += 1
+
+    return failures
+
+
+def check_assets(data: dict):
+    failures = 0
+
+    for channel in data.get("channels", []):
+        channel_name = channel.get("name", "<unknown-channel>")
+        for item in channel.get("assets", []):
+            asset_id = item.get("id", "<unknown>")
+            export_rel = item.get("export")
+            placeholder_rel = item.get("placeholder")
+            required = bool(item.get("required", True))
+            file_type = item.get("fileType", "")
+            fmt = str(item.get("format", "")).lower()
+
+            if not export_rel or not placeholder_rel:
+                fail(f"{channel_name}/{asset_id}: missing export/placeholder path")
+                failures += 1
+                continue
+
+            export_path = os.path.join(ROOT, export_rel)
+            placeholder_path = os.path.join(ROOT, placeholder_rel)
+
+            if not os.path.isfile(placeholder_path):
+                fail(f"{channel_name}/{asset_id}: missing placeholder {placeholder_rel}")
+                failures += 1
+
+            if os.path.isfile(export_path):
+                if file_type == "image":
+                    w_req = item.get("width")
+                    h_req = item.get("height")
+                    try:
+                        w_act, h_act = image_size(export_path, fmt)
+                        if (w_act, h_act) != (w_req, h_req):
+                            fail(
+                                f"{channel_name}/{asset_id}: wrong dimensions for {export_rel} "
+                                f"(got {w_act}x{h_act}, expected {w_req}x{h_req})"
+                            )
+                            failures += 1
+                    except Exception as e:
+                        fail(f"{channel_name}/{asset_id}: unable to validate {export_rel}: {e}")
+                        failures += 1
+            elif required:
+                warn(f"{channel_name}/{asset_id}: export not present yet ({export_rel}); placeholder is present")
+
+    return failures
+
+
+def main():
+    schema = load_json(SCHEMA, "schema")
+    data = load_json(MANIFEST, "manifest")
+    if schema is None or data is None:
+        return 1
+
+    failures = 0
+    failures += validate_manifest_shape(data)
+    failures += check_assets(data)
+
+    if failures:
+        print(f"Asset manifest check failed ({failures} issue(s)).")
+        return 1
+
+    print("Asset manifest check passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

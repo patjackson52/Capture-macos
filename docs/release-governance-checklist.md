@@ -35,3 +35,11 @@ Trigger rollback or halt if any occur:
 - [ ] Notify stakeholders and support channels
 - [ ] Open corrective-action issue with owner + due date
 - [ ] Record root cause + prevention updates in runbook
+
+## 5) Release evidence capture
+
+- [ ] Complete `docs/rollout-evidence-template.md`
+- [ ] Attach notarization request UUID + acceptance status
+- [ ] Attach Gatekeeper (`spctl`) clean-host verification output
+- [ ] Attach package checksum evidence for shipped zip
+- [ ] Link staged rollout metrics and owner sign-offs

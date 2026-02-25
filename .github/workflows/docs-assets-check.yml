@@ -5,6 +5,8 @@ on:
     paths:
       - 'docs/**'
       - 'scripts/check-assets-manifest.py'
+      - 'scripts/preflight-macos-distribution.sh'
+      - 'scripts/check-notarized-asset-package.sh'
       - 'assets/**'
       - '.github/workflows/docs-assets-check.yml'
   push:
@@ -12,6 +14,8 @@ on:
     paths:
       - 'docs/**'
       - 'scripts/check-assets-manifest.py'
+      - 'scripts/preflight-macos-distribution.sh'
+      - 'scripts/check-notarized-asset-package.sh'
       - 'assets/**'
       - '.github/workflows/docs-assets-check.yml'
 
@@ -28,7 +32,11 @@ jobs:
       - name: Validate asset manifest scaffolding
         run: scripts/check-assets-manifest.py
 
-      - name: Verify required docs exist
+      - name: Verify required docs/scripts exist
         run: |
           test -f docs/required-checks.md
           test -f docs/store-assets-readiness.md
+          test -f docs/notarized-distribution-asset-package.md
+          test -f docs/rollout-evidence-template.md
+          test -x scripts/preflight-macos-distribution.sh
+          test -x scripts/check-notarized-asset-package.sh

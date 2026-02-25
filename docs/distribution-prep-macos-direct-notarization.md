@@ -46,10 +46,32 @@ For manual run, set `notarize_enabled=true`.
 
 For tag push (`v*`), notarization submission executes automatically after validation/build.
 
+## Preflight and package checks
+
+Run before first notarized distribution cycle:
+
+```bash
+scripts/preflight-macos-distribution.sh
+```
+
+Validate the assembled first notarized asset package:
+
+```bash
+scripts/check-notarized-asset-package.sh out/notarized-package
+```
+
+See package contract details in:
+
+- `docs/notarized-distribution-asset-package.md`
+- `docs/rollout-evidence-template.md`
+
 ## Operator validation checklist
 
 - [ ] Required secrets are configured with least privilege access
+- [ ] `scripts/preflight-macos-distribution.sh` passes in CI/operator environment
 - [ ] Manual scaffold run succeeds from `workflow_dispatch`
 - [ ] First notarization run succeeds with `notarize_enabled=true`
 - [ ] Notarization ticket status is accepted and logged
 - [ ] Signed/notarized binary passes Gatekeeper validation on clean macOS host
+- [ ] `scripts/check-notarized-asset-package.sh` passes for first shipped package
+- [ ] Rollout evidence template completed and attached to release record
