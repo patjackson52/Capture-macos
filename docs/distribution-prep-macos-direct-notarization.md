@@ -46,9 +46,21 @@ For manual run, set `notarize_enabled=true`.
 
 For tag push (`v*`), notarization submission executes automatically after validation/build.
 
+## Local preflight helper
+
+Use `scripts/release/notarization-preflight.sh` to validate required environment variables and `VERSION` before triggering CI:
+
+```bash
+export APPLE_TEAM_ID=... # and other required values
+scripts/release/notarization-preflight.sh
+```
+
+This check is non-destructive and mirrors the workflow fail-fast expectations.
+
 ## Operator validation checklist
 
 - [ ] Required secrets are configured with least privilege access
+- [ ] Local preflight helper passes (`scripts/release/notarization-preflight.sh`)
 - [ ] Manual scaffold run succeeds from `workflow_dispatch`
 - [ ] First notarization run succeeds with `notarize_enabled=true`
 - [ ] Notarization ticket status is accepted and logged
