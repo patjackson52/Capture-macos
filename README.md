@@ -35,21 +35,21 @@ Native macOS 14+ menu bar capture app built in Swift/SwiftUI.
 ## Build
 
 ```bash
-cd Capture
+cd Capture-macos
 swift build
 ```
 
 ## Test
 
 ```bash
-cd Capture
+cd Capture-macos
 swift test
 ```
 
 ## Run
 
 ```bash
-cd Capture
+cd Capture-macos
 swift run CaptureApp
 ```
 
@@ -61,6 +61,14 @@ swift run CaptureApp
   - YAML front matter fields in fixed order: `id`, `createdAt`, `updatedAt`, `source`, `tags`, `attachments`
   - blank line
   - markdown body text
+
+## Release/distribution docs
+
+- Baseline runbook: `docs/release-runbook-basics.md`
+- Direct distribution + notarization scaffold: `docs/distribution-prep-macos-direct-notarization.md`
+- Signing prerequisites checklist: `docs/signing-prerequisites-macos.md`
+- Auto-update prep checklist (Sparkle-ready): `docs/auto-update-prep-macos.md`
+- Governance and rollback controls: `docs/release-governance-checklist.md`
 
 ## Notes
 
